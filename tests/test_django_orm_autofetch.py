@@ -46,7 +46,7 @@ def test_with_strict_mode_errors__m2m_lookup():
         list(restaurants[0].pizzas.all())
 
 
-def test_with_strict_mode_doesnt_error_on_m2m_lookup_():
+def test_with_strict_mode_doesnt_error__m2m_lookup():
     restaurants = Restaurant.objects.all().prefetch_related("pizzas").strict()
     assert restaurants[0].pizzas.all()[0] is not None
 
@@ -184,3 +184,8 @@ def test_model_with_strict_mode_has_autofetch_attribute():
     restaurants = Restaurant.objects.all().strict()
     assert hasattr(restaurants[0], "_autofetch")
     assert restaurants[0]._autofetch.strict_mode
+
+
+def test_strict_works_from_the_manager_and_queryset():
+    assert Restaurant.objects.strict()[0]._autofetch.strict_mode
+    assert Restaurant.objects.all().strict()[0]._autofetch.strict_mode
