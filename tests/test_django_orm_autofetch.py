@@ -30,7 +30,7 @@ def test_with_strict_mode_errors__fk_lookup():
         restaurants[0].location.city
 
 
-def test_with_strict_mode_doesnt_error__fk_lookup_with_select_related():
+def test_with_strict_mode_doesnt_error__fk_lookup():
     restaurants = Restaurant.objects.all().select_related("location").strict()
     assert restaurants[0].location.city is not None
 
@@ -46,7 +46,7 @@ def test_with_strict_mode_errors__m2m_lookup():
         list(restaurants[0].pizzas.all())
 
 
-def test_with_strict_mode_doesnt_error_on_m2m_lookup__prefetch_related():
+def test_with_strict_mode_doesnt_error_on_m2m_lookup_():
     restaurants = Restaurant.objects.all().prefetch_related("pizzas").strict()
     assert restaurants[0].pizzas.all()[0] is not None
 
@@ -78,7 +78,7 @@ def test_with_strict_mode_errors__reverse_lookup():
         restaurants[0].userfavorite_set.all()[0]
 
 
-def test_with_strict_mode_does_not_error__reverse_lookup_with_prefetch_related():
+def test_with_strict_mode_does_not_error__reverse_lookup():
     restaurants = Restaurant.objects.all().strict().prefetch_related("userfavorite_set")
     assert restaurants[0].userfavorite_set.all()[0] is not None
 
@@ -95,7 +95,7 @@ def test_with_strict_mode_errors_when_additional_filtering_is_done():
         restaurants[0].userfavorite_set.filter(restaurant_id=1)[0].id
 
 
-def test_with_strict_mode_does_not_error__reverse_lookup_then_fk_lookup__prefetch_and_select_related():  # noqa
+def test_with_strict_mode_does_not_error__reverse_lookup_then_fk_lookup():
     restaurants = (
         Restaurant.objects.all()
         .strict()
