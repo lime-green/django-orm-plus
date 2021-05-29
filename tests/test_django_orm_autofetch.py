@@ -229,8 +229,10 @@ def test_strict_mode_errors_nested_deferred_field_accessed():
 
 
 def test_strict_mode_does_not_error_if_prefetched_queryset_is_not_strict():
-    toppings = Topping.objects.all().prefetch_related(
-        Prefetch("pizza_set", queryset=Pizza.objects.only("id"))
+    toppings = (
+        Topping.objects.all()
+        .strict()
+        .prefetch_related(Prefetch("pizza_set", queryset=Pizza.objects.only("id")))
     )
 
     assert toppings[0].pizza_set.all()[0].name is not None
