@@ -1,5 +1,5 @@
 import pytest
-from django.db.models import Prefetch
+from django.db.models import Sum, Prefetch
 from django_orm_autofetch import (
     QueryModifiedAfterFetch,
     RelatedObjectNeedsExplicitFetch,
@@ -169,6 +169,11 @@ def test_with_strict_mode_does_not_error__o2o_field_lookup_and_select_related():
 def test_with_strict_mode_does_not_error__o2o_field_lookup_and_prefetch_related():
     favorites = UserFavorite.objects.all().prefetch_related("user").strict()
     assert favorites[0].user.id is not None
+
+
+def test_with_strict_mode_does_not_error_for_annotation():
+    restaurants = Restaurant.objects.strict().annotate(sum=Sum("id"))
+    assert restaurants[0].sum is not None
 
 
 def test_bare_model_does_not_have_autofetch_attribute():
