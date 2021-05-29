@@ -27,29 +27,29 @@ class QueryModifiedAfterFetch(StrictModeException):
 class StictModeContainer:
     def __init__(self):
         self.verify_queryset_is_prefetched = None
-        self.root = None
+        self.prefetch_root = None
         self._is_prefetching = False
         self.strict_mode = False
 
     def clone(self):
         return self.clone_to(self.__class__())
 
-    def add_potential_root(self, other):
-        if not self.root:
-            self.root = other
+    def add_potential_prefetch_root(self, other):
+        if not self.prefetch_root:
+            self.prefetch_root = other
 
     def clone_to(self, other):
         other.verify_queryset_is_prefetched = self.verify_queryset_is_prefetched
         other.strict_mode = self.strict_mode
-        other.root = self.root
+        other.prefetch_root = self.prefetch_root
         return other
 
     def enable_strict_mode(self):
         self.strict_mode = True
 
     def is_prefetching(self):
-        if self.root:
-            return self.root.is_prefetching()
+        if self.prefetch_root:
+            return self.prefetch_root.is_prefetching()
         return self._is_prefetching
 
     @contextmanager
@@ -69,7 +69,7 @@ class StrictModeIterable(models.query.ModelIterable):
         for obj in super().__iter__():
             if qs_strict_mode and qs_strict_mode.strict_mode:
                 obj._strict_mode = qs_strict_mode.clone()
-                obj._strict_mode.add_potential_root(qs_strict_mode)
+                obj._strict_mode.add_potential_prefetch_root(qs_strict_mode)
             yield obj
 
 
