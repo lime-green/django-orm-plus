@@ -74,8 +74,8 @@ class StrictModeIterable(models.query.ModelIterable):
 
 
 class StrictModeQuerySet(models.QuerySet):
-    def __init__(self, model=None, query=None, using=None, hints=None):
-        super().__init__(model, query, using, hints)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self._strict_mode = StictModeContainer()
         self._iterable_class = StrictModeIterable
@@ -108,8 +108,8 @@ class StrictModeQuerySet(models.QuerySet):
 
 
 class StrictModeManager(models.manager.BaseManager.from_queryset(StrictModeQuerySet)):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._strict_mode = StictModeContainer()
 
     def get_queryset(self):
