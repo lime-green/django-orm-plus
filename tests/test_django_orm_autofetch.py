@@ -2,10 +2,11 @@ import pytest
 from django.db.models import Sum, Prefetch
 from django_orm_autofetch import (
     QueryModifiedAfterFetch,
+    RelatedAttributeNeedsExplicitFetch,
     RelatedObjectNeedsExplicitFetch,
 )
 
-from app.models import Topping, Restaurant, UserFavorite
+from app.models import Pizza, Topping, Restaurant, UserFavorite
 
 from .factories import UserFavoriteFactory
 
@@ -177,20 +178,59 @@ def test_with_strict_mode_does_not_error_for_annotation():
 
 
 def test_bare_model_does_not_have_autofetch_attribute():
-    assert not hasattr(Restaurant(), "_autofetch")
+    assert not hasattr(Restaurant(), "_strict_mode")
 
 
 def test_model_without_strict_mode_does_not_have_autofetch_attribute():
     restaurants = Restaurant.objects.all()
-    assert not hasattr(restaurants[0], "_autofetch")
+    assert not hasattr(restaurants[0], "_strict_mode")
 
 
 def test_model_with_strict_mode_has_autofetch_attribute():
     restaurants = Restaurant.objects.all().strict()
-    assert hasattr(restaurants[0], "_autofetch")
-    assert restaurants[0]._autofetch.strict_mode
+    assert hasattr(restaurants[0], "_strict_mode")
+    assert restaurants[0]._strict_mode.strict_mode
 
 
 def test_strict_works_from_the_manager_and_queryset():
-    assert Restaurant.objects.strict()[0]._autofetch.strict_mode
-    assert Restaurant.objects.all().strict()[0]._autofetch.strict_mode
+    assert Restaurant.objects.strict()[0]._strict_mode.strict_mode
+    assert Restaurant.objects.all().strict()[0]._strict_mode.strict_mode
+
+
+def test_strict_mode_errors_if_deferred_field_is_accessed__only():
+    toppings = Topping.objects.all().only("id").strict()
+    with pytest.raises(RelatedAttributeNeedsExplicitFetch):
+        toppings[0].name
+
+
+def test_strict_mode_errors_if_deferred_field_is_accessed__defer():
+    toppings = Topping.objects.all().defer("name").strict()
+    with pytest.raises(RelatedAttributeNeedsExplicitFetch):
+        toppings[0].name
+
+
+def test_strict_mode_does_not_error_if_deferred_field_is_not_accessed__only():
+    toppings = Topping.objects.all().only("id").strict()
+    assert toppings[0].id is not None
+
+
+def test_strict_mode_does_not_error_if_deferred_field_is_not_accessed__defer():
+    toppings = Topping.objects.all().defer("name").strict()
+    assert toppings[0].id is not None
+
+
+def test_strict_mode_errors_nested_deferred_field_accessed():
+    toppings = Topping.objects.all().prefetch_related(
+        Prefetch("pizza_set", queryset=Pizza.objects.strict().only("id"))
+    )
+
+    with pytest.raises(RelatedAttributeNeedsExplicitFetch):
+        toppings[0].pizza_set.all()[0].name
+
+
+def test_strict_mode_does_not_error_if_prefetched_queryset_is_not_strict():
+    toppings = Topping.objects.all().prefetch_related(
+        Prefetch("pizza_set", queryset=Pizza.objects.only("id"))
+    )
+
+    assert toppings[0].pizza_set.all()[0].name is not None
