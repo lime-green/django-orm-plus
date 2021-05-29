@@ -177,16 +177,16 @@ def test_with_strict_mode_does_not_error_for_annotation():
     assert restaurants[0].sum is not None
 
 
-def test_bare_model_does_not_have_autofetch_attribute():
+def test_bare_model_does_not_have_strict_mode_attribute():
     assert not hasattr(Restaurant(), "_strict_mode")
 
 
-def test_model_without_strict_mode_does_not_have_autofetch_attribute():
+def test_model_without_strict_mode_does_not_have_strict_mode_attribute():
     restaurants = Restaurant.objects.all()
     assert not hasattr(restaurants[0], "_strict_mode")
 
 
-def test_model_with_strict_mode_has_autofetch_attribute():
+def test_model_with_strict_mode_has_strict_mode_attribute():
     restaurants = Restaurant.objects.all().strict()
     assert hasattr(restaurants[0], "_strict_mode")
     assert restaurants[0]._strict_mode.strict_mode
