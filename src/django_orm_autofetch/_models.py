@@ -146,7 +146,6 @@ class StrictModeModelMixin(models.Model):
                         )
                     ret = super().__getattribute__(item)
                     ret._autofetch = self._autofetch.clone()
-                    ret._autofetch.add_potential_root(self._autofetch)
                     return ret
             elif field.many_to_one or field.many_to_many:
 
@@ -165,7 +164,6 @@ class StrictModeModelMixin(models.Model):
 
                 ret = super().__getattribute__(item)
                 ret._autofetch = self._autofetch.clone()
-                ret._autofetch.add_potential_root(self._autofetch)
                 ret._autofetch.verify_queryset_is_prefetched = check_is_prefetched
                 return ret
         return super().__getattribute__(item)
