@@ -11,7 +11,7 @@ else:
     long_description = ""
 
 INSTALL_REQUIRES = []
-DEV_REQUIRES = ("black", "flake8", "pytest", "django")
+DEV_REQUIRES = ("black", "flake8", "pytest", "django", "pytest-django", "factory_boy", "ipdb", "setuptools_scm")
 
 
 setup(

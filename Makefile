@@ -24,7 +24,7 @@ $(VENV_NAME)/bin/activate: setup.py
 	touch $(VENV_NAME)/bin/activate
 
 test: venv
-	$(VENV_ACTIVATE) && ${PYTHON} -m pytest
+	$(VENV_ACTIVATE) && PYTHONPATH=tests/django_project DJANGO_SETTINGS_MODULE=tests.django_project.settings ${PYTHON} -m pytest -s -v
 
 lint: venv
 	$(VENV_ACTIVATE) && ${PYTHON} -m black src/ tests/
