@@ -1,4 +1,4 @@
-from ._models import (  # noqa
+from ._strict_mode import (  # noqa
     QueryModifiedAfterFetch,
     RelatedAttributeNeedsExplicitFetch,
     RelatedObjectNeedsExplicitFetch,
