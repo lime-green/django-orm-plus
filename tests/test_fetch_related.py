@@ -89,6 +89,14 @@ class TestFetchRelated:
             ["toppings"],
         )
 
+    def test_select_related__nested(self):
+        qs = fetch_related(
+            UserFavorite.objects.all(), ["restaurant", "restaurant__location"]
+        )
+        self._assert_matches_and_runs(
+            qs, expected_selects={"restaurant": {"location": {}}}
+        )
+
     def test_select_related__fk(self):
         self._assert_matches_and_runs(
             fetch_related(Restaurant.objects.all(), ["location"]),
@@ -121,6 +129,21 @@ class TestFetchRelated:
         self._assert_matches_and_runs(
             qs[0].userfavorite_set.all(),
             expected_selects={"user": {}},
+        )
+
+    def test_fetches_all_relations_in_path(self):
+        qs = fetch_related(
+            Restaurant.objects.all(),
+            ["userfavorite_set__user", "pizzas__toppings", "best_pizza__toppings"],
+        )
+        self._assert_matches_and_runs(
+            qs,
+            expected_prefetches=["pizzas", "userfavorite_set", "best_pizza__toppings"],
+            expected_selects={"best_pizza": {}},
+        )
+        self._assert_matches_and_runs(
+            qs[0].pizzas.all(),
+            expected_prefetches=["toppings"],
         )
 
     class TestWithStrictMode:
