@@ -54,7 +54,10 @@ class TestFetchRelated:
     def _assert_matches_and_runs(
         self, qs, expected_prefetches=None, expected_selects=None
     ):
-        assert qs._prefetch_related_lookups == tuple(expected_prefetches or [])
+        prefetch_related_lookups = [
+            prefetch.prefetch_through for prefetch in qs._prefetch_related_lookups
+        ]
+        assert prefetch_related_lookups == (expected_prefetches or [])
         assert qs.query.select_related == (expected_selects or False)
         assert list(qs) is not None
 
@@ -76,9 +79,14 @@ class TestFetchRelated:
         )
 
     def test_prefetch__nested(self):
+        qs = fetch_related(Restaurant.objects.all(), ["pizzas", "pizzas__toppings"])
         self._assert_matches_and_runs(
-            fetch_related(Restaurant.objects.all(), ["pizzas__toppings"]),
-            ["pizzas", "pizzas__toppings"],
+            qs,
+            ["pizzas"],
+        )
+        self._assert_matches_and_runs(
+            qs[0].pizzas.all(),
+            ["toppings"],
         )
 
     def test_select_related__fk(self):
@@ -103,11 +111,16 @@ class TestFetchRelated:
         )
 
     def test_select_related_on_a_prefetched_field(self):
+        qs = fetch_related(
+            Restaurant.objects.all(), ["userfavorite_set", "userfavorite_set__user"]
+        )
         self._assert_matches_and_runs(
-            fetch_related(
-                Restaurant.objects.all(), ["userfavorite_set", "userfavorite_set__user"]
-            ),
+            qs,
             expected_prefetches=["userfavorite_set"],
+        )
+        self._assert_matches_and_runs(
+            qs[0].userfavorite_set.all(),
+            expected_selects={"user": {}},
         )
 
     class TestWithStrictMode:
@@ -123,3 +136,12 @@ class TestFetchRelated:
 
             with pytest.raises(RelatedObjectNeedsExplicitFetch):
                 restaurants[0].best_pizza.toppings.all()[0]
+
+        def test_it_does_not_error_when_nested_related_object_is_fetched(self):
+            restaurants = (
+                Restaurant.objects.all()
+                .fetch_related("best_pizza", "best_pizza__toppings")
+                .strict()
+            )
+            assert restaurants[0].best_pizza is not None
+            assert restaurants[0].best_pizza.toppings.all()[0] is not None

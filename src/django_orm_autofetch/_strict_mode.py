@@ -119,6 +119,32 @@ class StrictModeManager(models.manager.BaseManager.from_queryset(StrictModeQuery
         self._strict_mode.clone_to(qs._strict_mode)
         return qs
 
+    def __getattribute__(self, item):
+        """
+        I really would like to figure out an alternative to this, this is
+        essentially monkey-patching `get_prefetch_queryset` :(
+
+        I could not figure out another way to pass the _strict_mode parameter
+        to querysets that are provided via `Prefetch("x", queryset=...)`
+        """
+        ret = super().__getattribute__(item)
+
+        if item == "get_prefetch_queryset":
+
+            def get_prefetch_queryset(instances, queryset=None):
+                if (
+                    queryset is not None
+                    and hasattr(queryset, "_strict_mode")
+                    and hasattr(instances[0], "_strict_mode")
+                ):
+                    qs = queryset._chain()
+                    instances[0]._strict_mode.clone_to(qs._strict_mode)
+                    return ret(instances, qs)
+                return ret(instances, queryset)
+
+            return get_prefetch_queryset
+        return ret
+
 
 class StrictModeModelMixin(models.Model):
     objects = StrictModeManager()
