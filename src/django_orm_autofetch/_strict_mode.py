@@ -2,6 +2,8 @@ from contextlib import contextmanager
 
 from django.db import models
 
+from ._util import get_fields_map_for_model
+
 
 class StrictModeException(Exception):
     pass
@@ -124,12 +126,7 @@ class StrictModeModelMixin(models.Model):
     @classmethod
     def __get_fields(cls):
         if not hasattr(cls, "__get_fields_cache"):
-            cls.__get_fields_cache = {
-                field.get_accessor_name()
-                if hasattr(field, "get_accessor_name")
-                else field.name
-                for field in cls._meta.get_fields()
-            }
+            cls.__get_fields_cache = set(get_fields_map_for_model(cls._meta).keys())
         return cls.__get_fields_cache
 
     def __getattribute__(self, item):
