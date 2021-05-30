@@ -29,15 +29,16 @@ class AutoFetch:
     def depth(self):
         return len(self.lookup_split) - 1
 
-    @staticmethod
-    def compare(this, other):
-        if this.depth != other.depth:
-            return cmp(this.depth, other.depth)
+    def compare(self, other):
+        if self.depth != other.depth:
+            return cmp(self.depth, other.depth)
 
-        for this_lookup, other_lookup in zip(this.lookup_split, other.lookup_split):
-            if this_lookup != other_lookup:
-                return cmp(this_lookup, other_lookup)
+        for self_lookup, other_lookup in zip(self.lookup_split, other.lookup_split):
+            if self_lookup != other_lookup:
+                return cmp(self_lookup, other_lookup)
         return 0
+
+    compare_key = cmp_to_key(compare)
 
     def __eq__(self, other):
         return self.lookup == other.lookup
@@ -62,7 +63,7 @@ class AutoFetchList:
 
         if autofetch not in autofetches_at_depth:
             autofetches_at_depth.append(autofetch)
-            autofetches_at_depth.sort(key=cmp_to_key(AutoFetch.compare))
+            autofetches_at_depth.sort(key=AutoFetch.compare_key)
 
     def __iter__(self):
         for i in sorted(self._autofetches.keys()):
