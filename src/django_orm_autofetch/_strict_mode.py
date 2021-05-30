@@ -141,7 +141,7 @@ class StrictModeModelMixin(models.Model):
         ):
             descriptor = getattr(self.__class__, item)
             field = descriptor.field
-            field_name = field.attname
+            field_name = item
 
             if isinstance(descriptor, models.query_utils.DeferredAttribute):
                 if (
