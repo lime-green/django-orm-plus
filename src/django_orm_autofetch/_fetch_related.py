@@ -100,11 +100,11 @@ def get_field_for_lookup(lookup: AutoFetch, base_model_meta):
     return field
 
 
-def add_lookup_for_field(qs: models.QuerySet, field_name: str, field: models.Field):
+def add_lookup_for_field(qs: models.QuerySet, lookup_path: str, field: models.Field):
     if field.one_to_one or field.many_to_one:
-        return qs.select_related(field_name)
+        return qs.select_related(lookup_path)
     if field.one_to_many or field.many_to_many:
-        return qs.prefetch_related(field_name)
+        return qs.prefetch_related(lookup_path)
     return qs
 
 
