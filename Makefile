@@ -3,6 +3,7 @@
 VENV_NAME?=venv
 VENV_ACTIVATE=. $(VENV_NAME)/bin/activate
 PYTHON=${VENV_NAME}/bin/python3
+TOX_ENV?=py39
 
 .DEFAULT: help
 help:
@@ -25,6 +26,9 @@ $(VENV_NAME)/bin/activate: setup.py
 
 test: venv
 	$(VENV_ACTIVATE) && PYTHONPATH=tests/django_project DJANGO_SETTINGS_MODULE=tests.django_project.settings ${PYTHON} -m pytest -s -v
+
+test-tox: venv
+	$(VENV_ACTIVATE) && ${PYTHON} -m tox -e ${TOX_ENV}
 
 lint: venv
 	$(VENV_ACTIVATE) && ${PYTHON} -m black src/ tests/

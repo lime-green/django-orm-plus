@@ -23,4 +23,4 @@ jobs:
         make lint-check
     - name: Test
       run: |
-        make test
+        TOX_ENV=${{ matrix.python-version }} make test-tox 
