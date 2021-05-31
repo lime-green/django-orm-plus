@@ -1,6 +1,10 @@
 name: Test
 
-on: [push]
+on:
+  push
+  schedule:
+    # Every Monday
+    - cron: "0 14 * * 1"
 
 jobs:
   build:
