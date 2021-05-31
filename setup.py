@@ -15,7 +15,7 @@ DEV_REQUIRES = ("black", "flake8", "pytest", "django", "pytest-django", "factory
 
 
 setup(
-    name="django-orm-autofetch",
+    name="django-orm-plus",
     install_requires=INSTALL_REQUIRES,
     extras_require=dict(
         dev=DEV_REQUIRES,
@@ -26,7 +26,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Josh DM",
-    url="https://github.com/lime-green/django-orm-autofetch",
+    url="https://github.com/lime-green/django-orm-plus",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     classifiers=[
