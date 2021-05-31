@@ -129,7 +129,7 @@ class StrictModeManager(models.manager.BaseManager.from_queryset(StrictModeQuery
         """
         ret = super().__getattribute__(item)
 
-        if item == "get_prefetch_queryset":
+        if item == "get_prefetch_queryset" and self._strict_mode.strict_mode:
 
             def get_prefetch_queryset(instances, queryset=None):
                 if (
@@ -148,6 +148,10 @@ class StrictModeManager(models.manager.BaseManager.from_queryset(StrictModeQuery
 
 class StrictModeModelMixin(models.Model):
     objects = StrictModeManager()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._strict_mode = StictModeContainer()
 
     @classmethod
     def __get_fields(cls):
@@ -190,7 +194,9 @@ class StrictModeModelMixin(models.Model):
                             field_name,
                         )
                     ret = super().__getattribute__(item)
-                    ret._strict_mode = self._strict_mode.clone()
+
+                    if hasattr(ret, "_strict_mode"):
+                        ret._strict_mode = self._strict_mode.clone()
                     return ret
             elif field.many_to_one or field.many_to_many:
 
@@ -208,8 +214,10 @@ class StrictModeModelMixin(models.Model):
                         )
 
                 ret = super().__getattribute__(item)
-                ret._strict_mode = self._strict_mode.clone()
-                ret._strict_mode.verify_queryset_is_prefetched = check_is_prefetched
+
+                if hasattr(ret, "_strict_mode"):
+                    ret._strict_mode = self._strict_mode.clone()
+                    ret._strict_mode.verify_queryset_is_prefetched = check_is_prefetched
                 return ret
         return super().__getattribute__(item)
 

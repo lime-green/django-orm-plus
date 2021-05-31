@@ -4,8 +4,12 @@ from django.contrib.auth.models import AbstractUser
 from django_orm_plus import ORMPlusModelMixin
 
 
-class User(ORMPlusModelMixin, AbstractUser):
+class Profile(models.Model):
     pass
+
+
+class User(ORMPlusModelMixin, AbstractUser):
+    profile = models.OneToOneField(Profile, null=True, on_delete=models.PROTECT)
 
 
 class Topping(ORMPlusModelMixin):

@@ -190,18 +190,13 @@ def test_with_strict_mode_does_not_error_for_annotation():
     assert restaurants[0].sum is not None
 
 
-def test_bare_model_does_not_have_strict_mode_attribute():
-    assert not hasattr(Restaurant(), "_strict_mode")
-
-
-def test_model_without_strict_mode_does_not_have_strict_mode_attribute():
+def test_model_without_strict_mode_has_flag_set_to_false():
     restaurants = Restaurant.objects.all()
-    assert not hasattr(restaurants[0], "_strict_mode")
+    assert not restaurants[0]._strict_mode.strict_mode
 
 
 def test_model_with_strict_mode_has_strict_mode_attribute():
     restaurants = Restaurant.objects.all().strict()
-    assert hasattr(restaurants[0], "_strict_mode")
     assert restaurants[0]._strict_mode.strict_mode
 
 
@@ -252,3 +247,9 @@ def test_strict_mode_is_propagated_to_child_prefetch_querysets():
 
     with pytest.raises(RelatedAttributeNeedsExplicitFetch, match="Pizza.name"):
         toppings[0].pizza_set.all()[0].name
+
+
+def test_strict_mode_does_not_propagate_to_non_strict_mode_relation():
+    assert not hasattr(
+        User.objects.strict().all().select_related("profile")[0].profile, "_autofetch"
+    )
