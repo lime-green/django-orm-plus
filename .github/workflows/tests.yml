@@ -18,8 +18,13 @@ jobs:
             python-version: 3.8
           - tox-env: py39
             python-version: 3.9
+        exclude:
+          - tox-env: py36
+            django-version: djangolatest
+          - tox-env: py37
+            django-version: djangolatest
     env:
-      TOXENV: ${{ matrix.tox-env }}-${{ matrix.django-version }}
+      TOXENV: ${{ matrix.tox-env }}
 
     steps:
     - uses: actions/checkout@v2
@@ -35,4 +40,4 @@ jobs:
         make lint-check
     - name: Test
       run: |
-        make test-tox
+        TOXENV=${{matrix.tox-env}} make test-tox
