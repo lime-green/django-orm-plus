@@ -10,8 +10,8 @@ if exists(readme_path):
 else:
     long_description = ""
 
-INSTALL_REQUIRES = []
-DEV_REQUIRES = ("black", "flake8", "pytest", "django", "pytest-django", "factory_boy", "ipdb", "setuptools_scm")
+INSTALL_REQUIRES = ["django ~= 3.2"]
+DEV_REQUIRES = ("black", "flake8", "pytest", "pytest-django", "factory_boy", "ipdb", "setuptools_scm")
 
 
 setup(
