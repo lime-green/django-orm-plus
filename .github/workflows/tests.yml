@@ -1,0 +1,50 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    # Every Monday
+    - cron: "0 14 * * 1"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tox-env: [py36, py37, py38, py39]
+        django-version: [django30, django31, django32, djangolatest]
+        include:
+          - tox-env: py36
+            python-version: 3.6
+          - tox-env: py37
+            python-version: 3.7
+          - tox-env: py38
+            python-version: 3.8
+          - tox-env: py39
+            python-version: 3.9
+        exclude:
+          - tox-env: py36
+            django-version: djangolatest
+          - tox-env: py37
+            django-version: djangolatest
+    env:
+      TOXENV: ${{ matrix.tox-env }}-${{ matrix.django-version }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        make prepare-dev
+    - name: Lint
+      run: |
+        make lint-check
+    - name: Test
+      run: |
+        make test-tox
