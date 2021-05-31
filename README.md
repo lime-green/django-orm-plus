@@ -47,6 +47,11 @@ class UserList(generics.ListCreateAPIView):
 
 Now your queryset is strict-mode enabled and your view will error if any relations
 are loaded for the user queryset eg. `users[0].profile` will error if `profile` is a foreign key.
+To fix, change the query to fetch the relation:
+
+```python
+queryset = User.objects.all().select_related("profile").strict()
+```
 
 This will apply for all relations (forward and reverse FKs, many to many, one to one) but not for plain fields.
 
