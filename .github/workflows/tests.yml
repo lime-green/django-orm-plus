@@ -32,7 +32,7 @@ jobs:
         make lint-check
     - name: Test
       run: |
-        TOKENV=${{matrix.tox-env}}-django30 make test-tox
-        TOKENV=${{matrix.tox-env}}-django31 make test-tox
-        TOKENV=${{matrix.tox-env}}-django32 make test-tox
-        TOKENV=${{matrix.tox-env}}-django3latest make test-tox
+        TOXENV=${{matrix.tox-env}}-django30 make test-tox
+        TOXENV=${{matrix.tox-env}}-django31 make test-tox
+        TOXENV=${{matrix.tox-env}}-django32 make test-tox
+        TOXENV=${{matrix.tox-env}}-django3latest make test-tox
