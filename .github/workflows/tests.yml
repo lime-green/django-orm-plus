@@ -24,7 +24,7 @@ jobs:
           - tox-env: py37
             django-version: djangolatest
     env:
-      TOXENV: ${{ matrix.tox-env }}
+      TOXENV: ${{ matrix.tox-env }}-${{ matrix.django-version }}
 
     steps:
     - uses: actions/checkout@v2
@@ -40,4 +40,4 @@ jobs:
         make lint-check
     - name: Test
       run: |
-        TOXENV=${{matrix.tox-env}} make test-tox
+        make test-tox
