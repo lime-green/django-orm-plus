@@ -7,7 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        tox-env: [py36, py37, py38, py39]
+        include:
+          - tox-env: py36
+            python-version: 3.6
+          - tox-env: py37
+            python-version: 3.7
+          - tox-env: py38
+            python-version: 3.8
+          - tox-env: py39
+            python-version: 3.9
+    env:
+      TOX_ENV: ${{ matrix.tox-env }}
 
     steps:
     - uses: actions/checkout@v2
@@ -23,4 +34,4 @@ jobs:
         make lint-check
     - name: Test
       run: |
-        TOX_ENV=${{ matrix.python-version }} make test-tox 
+        make test-tox
