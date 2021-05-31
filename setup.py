@@ -10,7 +10,7 @@ if exists(readme_path):
 else:
     long_description = ""
 
-INSTALL_REQUIRES = ["django ~= 3.2"]
+INSTALL_REQUIRES = ["django>=3.0<4"]
 DEV_REQUIRES = ("black", "flake8", "pytest", "pytest-django", "factory_boy", "ipdb", "setuptools_scm", "tox")
 
 
