@@ -1,7 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 from django_orm_plus import ORMPlusModelMixin
+
+
+class User(ORMPlusModelMixin, AbstractUser):
+    pass
 
 
 class Topping(ORMPlusModelMixin):

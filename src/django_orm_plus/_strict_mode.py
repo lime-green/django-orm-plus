@@ -163,7 +163,12 @@ class StrictModeModelMixin(models.Model):
             and item in self.__get_fields()
         ):
             descriptor = getattr(self.__class__, item)
-            field = descriptor.field
+
+            if hasattr(descriptor, "field"):
+                field = descriptor.field
+            else:  # reverse one to one
+                field = descriptor.related.field
+
             field_name = item
 
             if isinstance(descriptor, models.query_utils.DeferredAttribute):

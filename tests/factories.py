@@ -1,7 +1,6 @@
 import factory
-from django.contrib.auth.models import User
 
-from app.models import Pizza, Topping, Location, Restaurant, UserFavorite
+from app.models import Pizza, Topping, Location, Restaurant, User, UserFavorite
 
 
 class ToppingFactory(factory.django.DjangoModelFactory):

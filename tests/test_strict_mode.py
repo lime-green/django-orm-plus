@@ -6,7 +6,7 @@ from django_orm_plus import (
     RelatedObjectNeedsExplicitFetch,
 )
 
-from app.models import Pizza, Topping, Restaurant, UserFavorite
+from app.models import Pizza, Topping, Restaurant, User, UserFavorite
 
 from .factories import UserFavoriteFactory
 
@@ -145,6 +145,17 @@ def test_with_strict_mode_errors__no_prefetch_on_nested_relation():
 def test_no_strict_mode_does_not_error__o2o_field_lookup():
     favorites = UserFavorite.objects.all()
     assert favorites[0].user is not None
+
+
+def test_with_strict_mode_does_not_error__reverse_o2o():
+    users = User.objects.all().select_related("userfavorite").strict()
+    assert users[0].userfavorite is not None
+
+
+def test_with_strict_mode_errors__reverse_o2o():
+    users = User.objects.all().strict()
+    with pytest.raises(RelatedObjectNeedsExplicitFetch, match="User.userfavorite"):
+        assert users[0].userfavorite is not None
 
 
 def test_with_strict_mode__prefetch_to_attr():
