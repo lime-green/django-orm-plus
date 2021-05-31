@@ -30,7 +30,9 @@ class Restaurant(ORMPlusModelMixin):
     best_pizza = models.ForeignKey(
         Pizza, related_name="championed_by", on_delete=models.CASCADE
     )
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name="restaurants"
+    )
 
 
 class UserFavorite(ORMPlusModelMixin):

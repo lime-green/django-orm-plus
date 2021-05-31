@@ -6,7 +6,7 @@ from django_orm_plus import (
     RelatedObjectNeedsExplicitFetch,
 )
 
-from app.models import Pizza, Topping, Restaurant, User, UserFavorite
+from app.models import Location, Pizza, Topping, Restaurant, User, UserFavorite
 
 from .factories import UserFavoriteFactory
 
@@ -167,6 +167,17 @@ def test_with_strict_mode__prefetch_to_attr():
     assert toppings[0].pizzas[0] is not None
     with pytest.raises(RelatedObjectNeedsExplicitFetch, match="Topping.pizza_set"):
         toppings[0].pizza_set.all()[0]
+
+
+def test_strict_mode_does_not_error__related_name_lookup():
+    locations = Location.objects.all().strict().prefetch_related("restaurants")
+    assert locations[0].restaurants.all()[0].id is not None
+
+
+def test_strict_mode_errors__related_name_lookup():
+    locations = Location.objects.all().strict()
+    with pytest.raises(RelatedObjectNeedsExplicitFetch, match="Location.restaurants"):
+        locations[0].restaurants.all()[0].id
 
 
 def test_with_strict_mode_errors__o2o_field_lookup():
