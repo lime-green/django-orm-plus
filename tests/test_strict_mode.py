@@ -5,6 +5,7 @@ from django_orm_plus import (
     RelatedAttributeNeedsExplicitFetch,
     RelatedObjectNeedsExplicitFetch,
 )
+from django.test import override_settings
 
 from app.models import Location, Pizza, Topping, Restaurant, User, UserFavorite
 
@@ -264,3 +265,22 @@ def test_strict_mode_does_not_propagate_to_non_strict_mode_relation():
     assert not hasattr(
         User.objects.strict().all().select_related("profile")[0].profile, "_autofetch"
     )
+
+
+def test_strict_mode_does_not_error__global_override_false():
+    with pytest.raises(RelatedObjectNeedsExplicitFetch, match="Restaurant.location"):
+        restaurants = Restaurant.objects.all().strict()
+        restaurants[0].location.city
+
+    with override_settings(DJANGO_ORM_PLUS={"STRICT_MODE_GLOBAL_OVERRIDE": False}):
+        restaurants = Restaurant.objects.all().strict()
+        assert restaurants[0].location.city is not None
+
+
+def test_no_strict_mode_still_errors__global_override_true():
+    with override_settings(DJANGO_ORM_PLUS={"STRICT_MODE_GLOBAL_OVERRIDE": True}):
+        with pytest.raises(
+            RelatedObjectNeedsExplicitFetch, match="Restaurant.location"
+        ):
+            restaurants = Restaurant.objects.all()
+            restaurants[0].location.city
