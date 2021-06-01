@@ -51,7 +51,7 @@ the [n+1 query problem](https://scoutapm.com/blog/django-and-the-n1-queries-prob
 Strict mode will also raise an error when a deferred field (`.defer()` or `.only()`)
 is accessed.
 
-You only need to add `.strict()` to the end of your queryset wherever it's being used.
+You only need to add `.strict()` on your queryset wherever it's being used.
 So for example in a DRF view:
 
 ```python
