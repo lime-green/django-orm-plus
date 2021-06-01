@@ -22,20 +22,6 @@ class MyModel(models.Model, ORMPlusModelMixin):
     name = models.CharField(max_length=10)
 ```
 
-or equivalently:
-
-
-```python
-from django.db import models
-from django_orm_plus import ORMPlusManager
-
-
-class MyModel(models.Model):
-    objects = ORMPlusManager()
-
-    name = models.CharField(max_length=10)
-```
-
 ### Usage
 
 This library has two important functions for use on Django QuerySets:
