@@ -81,4 +81,19 @@ queryset = User.objects.all().fetch_related("profile", "likes", "books__author")
 
 Since `select_related` does a join in SQL, `fetch_related` opts to use `select_related`
 when possible, and in other cases will use `prefetch_related` which adds a single additional
-query and does the join in python
+query and does the join in Python.
+
+
+## Configuration
+
+You can set the following configuration object:
+
+```python
+DJANGO_ORM_PLUS = {
+    "STRICT_MODE_GLOBAL_OVERRIDE": None,
+}
+```
+
+`STRICT_MODE_GLOBAL_OVERRIDE` is a boolean flag that will enable or disable strict
+mode without considering if `.strict()` is used. This can be useful if you want to
+disable strict mode on production, or have all querysets use strict mode for local development.

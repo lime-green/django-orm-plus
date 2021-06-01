@@ -2,6 +2,7 @@ from contextlib import contextmanager
 
 from django.db import models
 
+from ._config import config
 from ._util import get_fields_map_for_model
 
 
@@ -31,7 +32,8 @@ class StictModeContainer:
         self.verify_queryset_is_prefetched = None
         self.prefetch_root = None
         self._is_prefetching = False
-        self.strict_mode = False
+        self._strict_mode = False
+        self._strict_mode_override = config.strict_mode_global_override
 
     def clone(self):
         return self.clone_to(self.__class__())
@@ -53,6 +55,16 @@ class StictModeContainer:
         if self.prefetch_root:
             return self.prefetch_root.is_prefetching()
         return self._is_prefetching
+
+    @property
+    def strict_mode(self):
+        if self._strict_mode_override is not None:
+            return self._strict_mode_override
+        return self._strict_mode
+
+    @strict_mode.setter
+    def strict_mode(self, val):
+        self._strict_mode = val
 
     @contextmanager
     def wrap_prefetch(self):
