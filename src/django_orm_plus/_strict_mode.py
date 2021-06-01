@@ -27,7 +27,7 @@ class QueryModifiedAfterFetch(StrictModeException):
         )
 
 
-class StictModeContainer:
+class StrictModeContainer:
     def __init__(self):
         self.verify_queryset_is_prefetched = None
         self.prefetch_root = None
@@ -91,7 +91,7 @@ class StrictModeQuerySet(models.QuerySet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._strict_mode = StictModeContainer()
+        self._strict_mode = StrictModeContainer()
         self._iterable_class = StrictModeIterable
 
     def _prefetch_related_objects(self):
@@ -124,7 +124,7 @@ class StrictModeQuerySet(models.QuerySet):
 class StrictModeManager(models.manager.BaseManager.from_queryset(StrictModeQuerySet)):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._strict_mode = StictModeContainer()
+        self._strict_mode = StrictModeContainer()
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -163,7 +163,7 @@ class StrictModeModelMixin(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._strict_mode = StictModeContainer()
+        self._strict_mode = StrictModeContainer()
 
     @classmethod
     def __get_fields(cls):
