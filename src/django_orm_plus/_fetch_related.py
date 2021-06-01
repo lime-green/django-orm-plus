@@ -19,15 +19,12 @@ class AutoFetch:
     def __init__(self, lookup):
         self.lookup = lookup
         self.lookup_split = lookup.split(LOOKUP_SEP)
+        self.depth = len(self.lookup_split) - 1
 
     def validate(self):
         for lookup in self.lookup_split:
             if not lookup:
                 raise InvalidLookupError(f"Lookup is invalid: {self.lookup}")
-
-    @property
-    def depth(self):
-        return len(self.lookup_split) - 1
 
     def compare(self, other):
         if self.depth != other.depth:

@@ -32,7 +32,7 @@ from django_orm_plus import ORMPlusManager
 
 class MyModel(models.Model):
     objects = ORMPlusManager()
-    
+
     name = models.CharField(max_length=10)
 ```
 
