@@ -86,7 +86,7 @@ query and does the join in Python.
 
 ## Configuration
 
-You can set the following configuration object:
+You can set the following configuration object in `settings.py`:
 
 ```python
 DJANGO_ORM_PLUS = {
