@@ -1,4 +1,6 @@
 ## django-orm-plus
+[![PyPI version](https://badge.fury.io/py/django-orm-plus.svg)](https://badge.fury.io/py/django-orm-plus)
+![Python versions](https://img.shields.io/pypi/pyversions/django-orm-plus.svg?style=flat-square&label=Python%20Versions)
 
 A collection of useful ORM features to make using the Django ORM convenient,
 performant and safe
