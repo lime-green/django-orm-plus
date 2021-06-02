@@ -315,6 +315,9 @@ def test_expected_number_of_queries_are_made(
             restaurants = restaurants.strict()
 
     with django_assert_num_queries(4):  # 1 query + 3 prefetches
+        list(restaurants)
+
+    with django_assert_num_queries(0):
         for restaurant in restaurants:
             assert restaurant.location.city is not None
 
@@ -324,4 +327,4 @@ def test_expected_number_of_queries_are_made(
                 for topping in pizza.toppings.all():
                     assert topping.id is not None
 
-                assert restaurant.userfavorite_set.all() is None
+                assert restaurant.userfavorite_set.all() is not None
