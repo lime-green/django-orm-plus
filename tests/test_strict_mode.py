@@ -95,7 +95,7 @@ def test_with_strict_mode_errors__reverse_lookup_then_fk_lookup():
 
 def test_with_strict_mode_errors_when_additional_filtering_is_done():
     restaurants = Restaurant.objects.all().strict().prefetch_related("userfavorite_set")
-    with pytest.raises(QueryModifiedAfterFetch, match="UserFavorite"):
+    with pytest.raises(QueryModifiedAfterFetch, match="Restaurant.userfavorite_set"):
         restaurants[0].userfavorite_set.filter(restaurant_id=1)[0].id
 
 
@@ -139,7 +139,7 @@ def test_with_strict_mode_does_not_error__nested_prefetch():
 
 def test_with_strict_mode_errors__no_prefetch_on_nested_relation():
     toppings = Topping.objects.all().strict().prefetch_related("pizza_set")
-    with pytest.raises(QueryModifiedAfterFetch, match="Pizza"):
+    with pytest.raises(QueryModifiedAfterFetch, match="Topping.pizza_set"):
         toppings[0].pizza_set.prefetch_related("restaurants").all()
 
 
@@ -284,3 +284,44 @@ def test_no_strict_mode_still_errors__global_override_true():
         ):
             restaurants = Restaurant.objects.all()
             restaurants[0].location.city
+
+
+def test_strict_mode_base_queryset_can_be_reused_but_children_cannot():
+    restaurants = Restaurant.objects.all().strict().prefetch_related("pizzas")
+
+    for restaurant in restaurants:
+        assert list(restaurant.pizzas.all()) is not None
+
+    assert restaurants.all() is not restaurants
+    pizzas = restaurants[0].pizzas.all()
+
+    with pytest.raises(QueryModifiedAfterFetch, match="Restaurant.pizzas"):
+        pizzas.all()
+
+    assert restaurants.all() is not restaurants
+
+
+@pytest.mark.parametrize("strict_mode_enabled", [True, False])
+def test_expected_number_of_queries_are_made(
+    strict_mode_enabled, django_assert_num_queries
+):
+    with django_assert_num_queries(0):
+        restaurants = (
+            Restaurant.objects.all()
+            .select_related("location")
+            .prefetch_related("pizzas", "pizzas__toppings", "userfavorite_set")
+        )
+        if strict_mode_enabled:
+            restaurants = restaurants.strict()
+
+    with django_assert_num_queries(4):  # 1 query + 3 prefetches
+        for restaurant in restaurants:
+            assert restaurant.location.city is not None
+
+            for pizza in restaurant.pizzas.all():
+                assert pizza.id is not None
+
+                for topping in pizza.toppings.all():
+                    assert topping.id is not None
+
+                assert restaurant.userfavorite_set.all() is None
