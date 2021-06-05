@@ -26,7 +26,7 @@ class MyModel(models.Model, ORMPlusModelMixin):
 
 This library has two important functions for use on Django QuerySets:
 - `.strict()`
-- `.autofetch()`
+- `.fetch_related()`
 
 ### strict
 Strict mode makes sure your ORM queries are efficient and safe by not allowing
@@ -55,8 +55,8 @@ To fix, change the query to also fetch the relation using either `select_related
 queryset = User.objects.all().select_related("profile").strict()
 ```
 
-### autofetch
-Autofetch combines the two of `select_related` and `prefetch_related`
+### fetch_related
+Combines both `select_related` and `prefetch_related`
 to reduce the total number of queries for you automatically.
 
 So instead of:
