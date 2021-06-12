@@ -1,3 +1,4 @@
+from ._bulk import bulk_update_or_create  # noqa
 from ._fetch_related import (  # noqa
     fetch_related,
 )
