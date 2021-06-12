@@ -27,6 +27,7 @@ class MyModel(models.Model, ORMPlusModelMixin):
 This library has two important functions for use on Django QuerySets:
 - `.strict()`
 - `.fetch_related()`
+- `.bulk_update_or_create()`
 
 ### strict
 Strict mode makes sure your ORM queries are efficient and safe by not allowing
@@ -85,6 +86,19 @@ Since `select_related` does a join in SQL, `fetch_related` opts to use `select_r
 when possible, and in other cases will use `prefetch_related` which adds a single additional
 query and does the join in Python.
 
+
+### bulk_update_or_create
+```python
+updated, created = User.objects.bulk_update_or_create(
+    [User(username="john123", first_name="Jonny"), User(username="jane_doe", first_name="Alexa")],
+    lookup_fields=["username"],
+    update_fields=["first_name"],
+)
+```
+
+This will combine `bulk_update` and `bulk_create` and return the records that were
+updated and created. `lookup_fields` is a list of field names that should uniquely
+identify a record.
 
 ## Configuration
 
