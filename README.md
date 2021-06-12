@@ -24,7 +24,7 @@ class MyModel(models.Model, ORMPlusModelMixin):
 
 ### Usage
 
-This library has two important functions for use on Django QuerySets:
+This library has three important functions for use on Django QuerySets:
 - `.strict()`
 - `.fetch_related()`
 - `.bulk_update_or_create()`
