@@ -3,9 +3,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 
-def bulk_update_or_create(
-    model, objects, lookup_fields, update_fields, batch_size=None
-):
+def bulk_update_or_create(objects, lookup_fields, update_fields, batch_size=None):
     """
     :param objects: List of objects to update or create
     :param lookup_fields: List of field names that uniquely identify a record
@@ -16,7 +14,7 @@ def bulk_update_or_create(
     if not objects:
         return [], []
 
-    assert model == objects[0]._meta.model
+    model = objects[0]._meta.model
 
     def lookup_objs(objs):
         lookup_filter = Q(pk__in=[])

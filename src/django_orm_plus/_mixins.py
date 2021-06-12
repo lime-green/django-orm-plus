@@ -12,9 +12,10 @@ class ORMPlusQuerySet(StrictModeQuerySet):
     def bulk_update_or_create(
         self, objs, lookup_fields, update_fields, batch_size=None
     ):
-        return bulk_update_or_create(
-            self.model, objs, lookup_fields, update_fields, batch_size
-        )
+        if objs:
+            assert self.model == objs[0]._meta.model
+
+        return bulk_update_or_create(objs, lookup_fields, update_fields, batch_size)
 
 
 class ORMPlusManager(
