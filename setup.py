@@ -25,7 +25,7 @@ setup(
     description="Make efficient and explicit SQL queries with the Django ORM automatically",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Josh DM",
+    author="Josh",
     url="https://github.com/lime-green/django-orm-plus",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
