@@ -1,6 +1,6 @@
 import pytest
 
-from app.models import Location, Restaurant
+from app.models import Location, Pizza, Restaurant
 
 from .factories import UserFavoriteFactory
 
@@ -16,10 +16,11 @@ class TestBulkUpdateOrCreate:
 
     def test_create(self, django_assert_num_queries):
         location = Location.objects.create(city="Toronto")
+        pizza = Pizza.objects.create(name="Margarita")
 
         with django_assert_num_queries(3):
             updated, created = Restaurant.objects.bulk_update_or_create(
-                [Restaurant(location_id=location.id, best_pizza_id=1)],
+                [Restaurant(location_id=location.id, best_pizza_id=pizza.id)],
                 lookup_fields=["location_id"],
                 update_fields=["best_pizza_id"],
             )
@@ -29,13 +30,15 @@ class TestBulkUpdateOrCreate:
         assert created[0].pk is not None
         assert created[0].location_id == location.id
         assert created[0].created_at is not None
+        assert created[0].best_pizza == pizza
 
     def test_update(self, django_assert_num_queries):
         restaurant = Restaurant.objects.first()
+        location = Location.objects.create(city="Toronto")
 
         with django_assert_num_queries(2):
             updated, created = Restaurant.objects.bulk_update_or_create(
-                [Restaurant(id=1, location_id=2)],
+                [Restaurant(id=restaurant.id, location_id=location.id)],
                 lookup_fields=["id"],
                 update_fields=["location_id"],
             )
@@ -44,6 +47,7 @@ class TestBulkUpdateOrCreate:
         assert len(updated) == 1
         assert updated[0].pk == restaurant.pk
         assert updated[0].location_id != restaurant.location_id
+        assert updated[0].location == location
         assert updated[0].updated_at != restaurant.updated_at
 
     def test_update_same_as_original(self, django_assert_num_queries):
@@ -53,7 +57,7 @@ class TestBulkUpdateOrCreate:
 
         with django_assert_num_queries(1):
             updated, created = Restaurant.objects.bulk_update_or_create(
-                [Restaurant(id=1, location_id=original_location_id)],
+                [Restaurant(id=restaurant.id, location_id=original_location_id)],
                 lookup_fields=["id"],
                 update_fields=["location_id"],
             )
@@ -62,3 +66,33 @@ class TestBulkUpdateOrCreate:
 
         restaurant.refresh_from_db()
         assert restaurant.updated_at == original_updated_at
+
+    def test_many_creates_and_updates(self, django_assert_num_queries):
+        existing_restaurants = list(Restaurant.objects.all())
+        new_restaurant_id = existing_restaurants[-1].id + 1
+        assert len(existing_restaurants) > 1
+
+        for i, restaurant in enumerate(existing_restaurants):
+            restaurant.location = Location.objects.create(
+                city=f"updated-restaurant-{i}"
+            )
+            restaurant.best_pizza = Pizza.objects.create(name=f"updated-restaurant-{i}")
+
+        new_restaurants = [
+            Restaurant(
+                id=i,
+                location=Location.objects.create(city=f"new-restaurant-{i}"),
+                best_pizza=Pizza.objects.create(name=f"new-restaurant-{i}"),
+            )
+            for i in range(new_restaurant_id, new_restaurant_id + 10)
+        ]
+
+        with django_assert_num_queries(4):
+            updated, created = Restaurant.objects.bulk_update_or_create(
+                existing_restaurants + new_restaurants,
+                lookup_fields=["id"],
+                update_fields=["location", "best_pizza"],
+            )
+
+            assert len(updated) == len(existing_restaurants)
+            assert len(created) == len(new_restaurants)

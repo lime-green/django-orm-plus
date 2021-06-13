@@ -98,7 +98,7 @@ updated, created = User.objects.bulk_update_or_create(
 
 This will combine `bulk_update` and `bulk_create` and return the records that were
 updated and created. `lookup_fields` is a list of field names that should uniquely
-identify a record.
+identify a record. This method takes `batch_size` as an optional parameter which defaults to 1000
 
 ## Configuration
 
