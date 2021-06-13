@@ -67,6 +67,16 @@ def _bulk_update_or_create_batch(qs, objects_batch, lookup_fields, update_fields
     return objects_updated, objects_created
 
 
+def _get_validated_fields(qs, fields):
+    fields = [qs.model._meta.get_field(field) for field in fields]
+    if any(not f.concrete or f.many_to_many for f in fields):
+        raise ValueError("Only concrete fields are allowed")
+
+    # we don't want to trigger any related object lookups
+    # eg. instead of obj.related we use obj.related_id
+    return [field.attname for field in fields]
+
+
 def bulk_update_or_create(
     qs, objects, lookup_fields, update_fields, batch_size=DEFAULT_BATCH_SIZE
 ):
@@ -88,12 +98,8 @@ def bulk_update_or_create(
     objects_updated = []
     objects_created = []
 
-    # we don't want to trigger any related object lookups
-    # eg. instead of obj.related we use obj.related_id
-    for field in qs.model._meta.get_fields():
-        if field.is_relation and field.name in update_fields:
-            update_fields.remove(field.name)
-            update_fields.append(field.attname)
+    update_fields = _get_validated_fields(qs, update_fields)
+    lookup_fields = _get_validated_fields(qs, lookup_fields)
 
     with transaction.atomic(using=qs.db, savepoint=False):
         for i in range(0, len(objects), batch_size):
