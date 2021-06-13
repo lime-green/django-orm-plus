@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 
-DEFAULT_BATCH_SIZE = 5000
+DEFAULT_BATCH_SIZE = 1000
 
 
 def _bulk_update_or_create_batch(model, objects_batch, lookup_fields, update_fields):
