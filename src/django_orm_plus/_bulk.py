@@ -6,7 +6,7 @@ from django.utils import timezone
 DEFAULT_BATCH_SIZE = 1000
 
 
-def _bulk_update_or_create_batch(model, objects_batch, lookup_fields, update_fields):
+def _bulk_update_or_create_batch(qs, objects_batch, lookup_fields, update_fields):
     def make_key(obj):
         return tuple(getattr(obj, lookup_field) for lookup_field in lookup_fields)
 
@@ -19,12 +19,14 @@ def _bulk_update_or_create_batch(model, objects_batch, lookup_fields, update_fie
                 for lookup_field in lookup_fields
             }
             lookup_filter |= Q(**lookup_query)
-        return model.objects.filter(lookup_filter)
+        return qs.filter(lookup_filter)
 
     objs_to_create = []
     objs_to_update = []
     auto_now_fields = [
-        field.name for field in model._meta.fields if getattr(field, "auto_now", False)
+        field.name
+        for field in qs.model._meta.get_fields()
+        if getattr(field, "auto_now", False)
     ]
     now = timezone.now()
 
@@ -51,9 +53,9 @@ def _bulk_update_or_create_batch(model, objects_batch, lookup_fields, update_fie
             objs_to_create.append(obj)
 
     if objs_to_create:
-        model.objects.bulk_create(objs_to_create)
+        qs.bulk_create(objs_to_create)
     if objs_to_update:
-        model.objects.bulk_update(
+        qs.bulk_update(
             objs_to_update,
             fields=update_fields + auto_now_fields,
         )
@@ -66,7 +68,7 @@ def _bulk_update_or_create_batch(model, objects_batch, lookup_fields, update_fie
 
 
 def bulk_update_or_create(
-    objects, lookup_fields, update_fields, batch_size=DEFAULT_BATCH_SIZE
+    qs, objects, lookup_fields, update_fields, batch_size=DEFAULT_BATCH_SIZE
 ):
     """
     :param objects: List of objects to update or create
@@ -75,30 +77,29 @@ def bulk_update_or_create(
     :param return_records: If the affected records should be returned
     :return:
     """
+    objects = tuple(objects)
+
     if not objects:
         return [], []
 
     if batch_size is None:
         batch_size = DEFAULT_BATCH_SIZE
 
-    # ensure objects is a list
-    objects = list(objects)
-    model = objects[0]._meta.model
     objects_updated = []
     objects_created = []
 
     # we don't want to trigger any related object lookups
     # eg. instead of obj.related we use obj.related_id
-    for field in model._meta.fields:
+    for field in qs.model._meta.get_fields():
         if field.is_relation and field.name in update_fields:
             update_fields.remove(field.name)
             update_fields.append(field.attname)
 
-    with transaction.atomic(savepoint=False):
+    with transaction.atomic(using=qs.db, savepoint=False):
         for i in range(0, len(objects), batch_size):
             objects_batch = objects[i : i + batch_size]  # noqa
             objects_updated_batch, objects_created_batch = _bulk_update_or_create_batch(
-                model, objects_batch, lookup_fields, update_fields
+                qs, objects_batch, lookup_fields, update_fields
             )
             objects_updated += objects_updated_batch
             objects_created += objects_created_batch
