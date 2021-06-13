@@ -28,42 +28,41 @@ def _bulk_update_or_create_batch(model, objects_batch, lookup_fields, update_fie
     ]
     now = timezone.now()
 
-    with transaction.atomic(savepoint=False):
-        obj_mapping = {
-            make_key(obj): obj for obj in lookup_objs(objects_batch).select_for_update()
-        }
+    obj_mapping = {
+        make_key(obj): obj for obj in lookup_objs(objects_batch).select_for_update()
+    }
 
-        for obj in objects_batch:
-            key = make_key(obj)
+    for obj in objects_batch:
+        key = make_key(obj)
 
-            if key in obj_mapping:
-                existing_obj = obj_mapping[key]
-                if any(
-                    getattr(obj, update_field) != getattr(existing_obj, update_field)
-                    for update_field in update_fields
-                ):
-                    for auto_now_field in auto_now_fields:
-                        setattr(existing_obj, auto_now_field, now)
-                    for update_field in update_fields:
-                        target_value = getattr(obj, update_field)
-                        setattr(existing_obj, update_field, target_value)
-                    objs_to_update.append(existing_obj)
-            else:
-                objs_to_create.append(obj)
+        if key in obj_mapping:
+            existing_obj = obj_mapping[key]
+            if any(
+                getattr(obj, update_field) != getattr(existing_obj, update_field)
+                for update_field in update_fields
+            ):
+                for auto_now_field in auto_now_fields:
+                    setattr(existing_obj, auto_now_field, now)
+                for update_field in update_fields:
+                    target_value = getattr(obj, update_field)
+                    setattr(existing_obj, update_field, target_value)
+                objs_to_update.append(existing_obj)
+        else:
+            objs_to_create.append(obj)
 
-        if objs_to_create:
-            model.objects.bulk_create(objs_to_create)
-        if objs_to_update:
-            model.objects.bulk_update(
-                objs_to_update,
-                fields=update_fields + auto_now_fields,
-            )
+    if objs_to_create:
+        model.objects.bulk_create(objs_to_create)
+    if objs_to_update:
+        model.objects.bulk_update(
+            objs_to_update,
+            fields=update_fields + auto_now_fields,
+        )
 
-        objects_updated = objs_to_update
-        # need to re-fetch because not all db engines support returning PKs
-        # on bulk_create
-        objects_created = list(lookup_objs(objs_to_create))
-        return objects_updated, objects_created
+    objects_updated = objs_to_update
+    # need to re-fetch because not all db engines support returning PKs
+    # on bulk_create
+    objects_created = list(lookup_objs(objs_to_create))
+    return objects_updated, objects_created
 
 
 def bulk_update_or_create(
@@ -95,12 +94,13 @@ def bulk_update_or_create(
             update_fields.remove(field.name)
             update_fields.append(field.attname)
 
-    for i in range(0, len(objects), batch_size):
-        objects_batch = objects[i : i + batch_size]  # noqa
-        objects_updated_batch, objects_created_batch = _bulk_update_or_create_batch(
-            model, objects_batch, lookup_fields, update_fields
-        )
-        objects_updated += objects_updated_batch
-        objects_created += objects_created_batch
+    with transaction.atomic(savepoint=False):
+        for i in range(0, len(objects), batch_size):
+            objects_batch = objects[i : i + batch_size]  # noqa
+            objects_updated_batch, objects_created_batch = _bulk_update_or_create_batch(
+                model, objects_batch, lookup_fields, update_fields
+            )
+            objects_updated += objects_updated_batch
+            objects_created += objects_created_batch
 
     return objects_updated, objects_created
