@@ -1,4 +1,5 @@
 import pytest
+from django.core.exceptions import FieldDoesNotExist
 
 from app.models import Location, Pizza, Restaurant
 
@@ -96,3 +97,54 @@ class TestBulkUpdateOrCreate:
 
             assert len(updated) == len(existing_restaurants)
             assert len(created) == len(new_restaurants)
+
+    @pytest.mark.parametrize(
+        "lookup_fields,update_fields",
+        [
+            [["id"], ["pizzas"]],
+            [["id", "pizzas"], ["location_id"]],
+        ],
+    )
+    def test_errors_if_m2m_field_is_given(self, lookup_fields, update_fields):
+        restaurant = Restaurant.objects.first()
+
+        with pytest.raises(ValueError):
+            Restaurant.objects.bulk_update_or_create(
+                [Restaurant(id=restaurant.id)],
+                lookup_fields=lookup_fields,
+                update_fields=update_fields,
+            )
+
+    @pytest.mark.parametrize(
+        "lookup_fields,update_fields",
+        [
+            [["id"], ["non_existent"]],
+            [["id", "non_existent"], ["location_id"]],
+        ],
+    )
+    def test_errors_if_non_existent_field_is_given(self, lookup_fields, update_fields):
+        restaurant = Restaurant.objects.first()
+
+        with pytest.raises(FieldDoesNotExist):
+            Restaurant.objects.bulk_update_or_create(
+                [Restaurant(id=restaurant.id)],
+                lookup_fields=lookup_fields,
+                update_fields=update_fields,
+            )
+
+    @pytest.mark.parametrize(
+        "lookup_fields,update_fields",
+        [
+            [["id"], ["userfavorite"]],
+            [["id", "userfavorite"], ["location_id"]],
+        ],
+    )
+    def test_errors_if_non_concrete_field_is_given(self, lookup_fields, update_fields):
+        restaurant = Restaurant.objects.first()
+
+        with pytest.raises(ValueError):
+            Restaurant.objects.bulk_update_or_create(
+                [Restaurant(id=restaurant.id)],
+                lookup_fields=lookup_fields,
+                update_fields=update_fields,
+            )
