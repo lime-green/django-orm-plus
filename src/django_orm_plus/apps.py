@@ -28,6 +28,9 @@ def auto_add_mixin_to_model(model):
         manager.name = "django_orm_plus_manager"
         managers_to_name_map = {v: k for k, v in model._meta.managers_map.items()}
         if not model._meta.default_manager_name:
+            # explicitly set it so we can make sure `default_manager` is
+            # consistent across model states, which is important so no
+            # migrations are created
             model._meta.default_manager_name = managers_to_name_map[
                 model._meta.default_manager
             ]
