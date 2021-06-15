@@ -58,6 +58,7 @@ class TestAutoPatch:
         assert not hasattr(model.objects, "_strict_mode")
         assert not isinstance(model.objects.all(), ORMPlusQuerySet)
         assert not hasattr(model(), "_strict_mode")
+        assert ORMPlusModelMixin not in model.__bases__
 
     def _assert_model_is_patched(self, model):
         assert hasattr(model.objects, "bulk_update_or_create")
@@ -66,6 +67,7 @@ class TestAutoPatch:
         assert hasattr(model.objects, "_strict_mode")
         assert isinstance(model.objects.all(), ORMPlusQuerySet)
         assert hasattr(model(), "_strict_mode")
+        assert model.__bases__[0] is ORMPlusModelMixin
 
     def test_does_not_patch_by_default(self, DummyModel):
         auto_add_mixin_to_model(DummyModel)
