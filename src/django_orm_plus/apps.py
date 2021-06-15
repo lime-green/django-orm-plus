@@ -22,13 +22,15 @@ def auto_add_mixin_to_model(model):
             + model._default_manager.__class__.__bases__,
             {
                 "_queryset_class": queryset_class,
+                "use_in_migrations": False,
             },
         )()
-        model._meta.local_managers = [
-            m for m in model._meta.local_managers if m.name != "objects"
-        ]
+        manager.name = "django_orm_plus_manager"
+        manager.contribute_to_class(model, manager.name)
+        if not model._meta.default_manager_name:
+            model._meta.default_manager_name = "objects"
+        setattr(model, "objects", getattr(model, manager.name))
         model.__bases__ = (ORMPlusModelMixin,) + model.__bases__
-        manager.contribute_to_class(model, "objects")
 
 
 class DjangoORMPlusAppConfig(AppConfig):
