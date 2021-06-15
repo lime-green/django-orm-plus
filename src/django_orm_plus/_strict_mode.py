@@ -140,7 +140,7 @@ class StrictModeManager(models.manager.BaseManager.from_queryset(StrictModeQuery
         return ret
 
 
-class StrictModeModelMixin:
+class StrictModeModelMixin(models.Model):
     objects = StrictModeManager()
 
     def __init__(self, *args, **kwargs):

@@ -6,7 +6,7 @@ from django.db.models import Model, QuerySet
 from django.db.models.manager import BaseManager, Manager
 from django.test import override_settings
 from django_orm_plus.apps import auto_add_mixin_to_model
-from django_orm_plus.mixins import ORMPlusModelMixin, ORMPlusQuerySet
+from django_orm_plus.mixins import ORMPlusQuerySet
 
 
 pytestmark = pytest.mark.django_db
@@ -94,9 +94,8 @@ class TestAutoPatch:
         assert isinstance(DummyModelWithCustomManager.objects.all(), ORMPlusQuerySet)
         assert isinstance(DummyModelWithCustomManager.objects.all(), CustomQuerySet)
 
-    def test_model_state_is_unchanged(self, DummyModel):
-        class MyModel(DummyModel):
-            objects = Manager()
+    def test_model_state_is_unchanged(self, DummyModelWithCustomManager, CustomManager):
+        class MyModel(DummyModelWithCustomManager):
             another_manager = Manager()
 
             class Meta:
@@ -110,8 +109,7 @@ class TestAutoPatch:
         assert hasattr(MyModel.objects, "bulk_update_or_create")
 
         patch_state = ModelState.from_model(MyModel)
-        assert patch_state.bases[0] is ORMPlusModelMixin
         # We modify __bases__ with the mixin
         # but we don't really care since it doesn't cause a migration
-        patch_state.bases = patch_state.bases[1:]
+        patch_state.bases = patch_state.bases[:-1]
         assert patch_state == no_patch_state
