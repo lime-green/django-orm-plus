@@ -14,24 +14,23 @@ pip install django-orm-plus
 Now you must do one of the following:
 
 1. Set `AUTO_ADD_MODEL_MIXIN` to `True` in `settings.py`:
-```python
-DJANGO_ORM_PLUS = {
-    "AUTO_ADD_MODEL_MIXIN": True,
-}
-```
+    ```python
+    DJANGO_ORM_PLUS = {
+        "AUTO_ADD_MODEL_MIXIN": True,
+    }
+    ```
 
-This will automatically patch your models with `ORMPlusModelMixin`
+    This will automatically patch your models with `ORMPlusModelMixin`
 
 2. Or, add the following model mixin to your models manually:
+    ```python
+    from django.db import models
+    from django_orm_plus.mixins import ORMPlusModelMixin
 
-```python
-from django.db import models
-from django_orm_plus.mixins import ORMPlusModelMixin
 
-
-class MyModel(models.Model, ORMPlusModelMixin):
-    name = models.CharField(max_length=10)
-```
+    class MyModel(models.Model, ORMPlusModelMixin):
+        name = models.CharField(max_length=10)
+    ```
 
 ### Usage
 
