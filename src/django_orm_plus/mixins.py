@@ -23,9 +23,9 @@ class ORMPlusQuerySet(StrictModeQuerySet):
 
 
 class ORMPlusManager(
-    StrictModeManager, models.manager.BaseManager.from_queryset(ORMPlusQuerySet)
+    models.manager.BaseManager.from_queryset(ORMPlusQuerySet), StrictModeManager
 ):
-    _queryset_class = ORMPlusQuerySet
+    pass
 
 
 class ORMPlusModelMixin(StrictModeModelMixin):

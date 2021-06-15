@@ -4,11 +4,8 @@ from typing import List
 from django.db import models
 from django.db.models.constants import LOOKUP_SEP
 
+from .exceptions import InvalidLookupError
 from ._util import cmp, get_fields_map_for_model
-
-
-class InvalidLookupError(ValueError):
-    pass
 
 
 class AutoFetch:

@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from django_orm_plus import ORMPlusModelMixin
+from django_orm_plus.mixins import ORMPlusModelMixin
 
 
 class BaseModel(models.Model):

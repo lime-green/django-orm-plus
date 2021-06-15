@@ -10,17 +10,28 @@ performant and safe
 ```bash
 pip install django-orm-plus
 ```
+Then add `django_orm_plus` to `INSTALLED_APPS`
 
-Now add the following model mixin to your models, eg:
+Now you must do one of the following:
 
-```python
-from django.db import models
-from django_orm_plus import ORMPlusModelMixin
+1. Set `AUTO_ADD_MODEL_MIXIN` to `True` in `settings.py`:
+    ```python
+    DJANGO_ORM_PLUS = {
+        "AUTO_ADD_MODEL_MIXIN": True,
+    }
+    ```
+
+    This will automatically patch your models with `ORMPlusModelMixin`
+
+2. Or, add the following model mixin to your models manually:
+    ```python
+    from django.db import models
+    from django_orm_plus.mixins import ORMPlusModelMixin
 
 
-class MyModel(models.Model, ORMPlusModelMixin):
-    name = models.CharField(max_length=10)
-```
+    class MyModel(models.Model, ORMPlusModelMixin):
+        name = models.CharField(max_length=10)
+    ```
 
 ### Usage
 
@@ -106,9 +117,12 @@ You can set the following configuration object in `settings.py`:
 
 ```python
 DJANGO_ORM_PLUS = {
+    "AUTO_ADD_MODEL_MIXIN": False,
     "STRICT_MODE_GLOBAL_OVERRIDE": None,
 }
 ```
+`AUTO_ADD_MODEL_MIXIN` is a boolean flag that will auto-patch all the models
+on load with `ORMPlusModelMixin`
 
 `STRICT_MODE_GLOBAL_OVERRIDE` is a boolean flag that will enable or disable strict
 mode without considering if `.strict()` is used. This can be useful if you want to
