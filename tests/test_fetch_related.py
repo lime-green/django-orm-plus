@@ -1,8 +1,9 @@
 import pytest
-from django_orm_plus import fetch_related, RelatedObjectNeedsExplicitFetch
+from django_orm_plus.exceptions import RelatedObjectNeedsExplicitFetch
 from django_orm_plus._fetch_related import (
     AutoFetch,
     InvalidLookupError,
+    fetch_related,
     normalize_lookups,
 )
 

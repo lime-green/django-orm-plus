@@ -1,28 +1,12 @@
 from django.db import models
 
 from ._config import config
+from .exceptions import (
+    RelatedAttributeNeedsExplicitFetch,
+    RelatedObjectNeedsExplicitFetch,
+    QueryModifiedAfterFetch,
+)
 from ._util import get_fields_map_for_model
-
-
-class StrictModeException(Exception):
-    pass
-
-
-class RelatedAttributeNeedsExplicitFetch(StrictModeException):
-    def __init__(self, model_name, field_name):
-        super().__init__(f"{model_name}.{field_name} must be explicitly fetched")
-
-
-class RelatedObjectNeedsExplicitFetch(StrictModeException):
-    def __init__(self, model_name, field_name):
-        super().__init__(f"{model_name}.{field_name} must be explicitly fetched")
-
-
-class QueryModifiedAfterFetch(StrictModeException):
-    def __init__(self, model_name, field_name):
-        super().__init__(
-            f"The query for {model_name}.{field_name} was modified after the results were fetched"  # noqa
-        )
 
 
 class StrictModeContainer:

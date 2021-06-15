@@ -2,6 +2,7 @@ from django.conf import settings
 
 
 DEFAULT_CONFIG = {
+    "AUTO_ADD_MODEL_MIXIN": False,
     "STRICT_MODE_GLOBAL_OVERRIDE": None,
 }
 
@@ -9,6 +10,10 @@ DEFAULT_CONFIG = {
 class Config:
     def __init__(self, default_config):
         self._default_config = default_config
+
+    @property
+    def auto_add_model_mixin(self):
+        return self.get_setting("AUTO_ADD_MODEL_MIXIN")
 
     @property
     def strict_mode_global_override(self):

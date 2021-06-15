@@ -17,7 +17,7 @@ class TestBulkUpdateOrCreate:
 
     def test_create(self, django_assert_num_queries):
         location = Location.objects.create(city="Toronto")
-        pizza = Pizza.objects.create(name="Margarita")
+        pizza = Pizza.objects.create(name="Margherita")
 
         with django_assert_num_queries(3):
             updated, created = Restaurant.objects.bulk_update_or_create(
