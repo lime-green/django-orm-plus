@@ -10,6 +10,7 @@ performant and safe
 ```bash
 pip install django-orm-plus
 ```
+Then add `django_orm_plus` to `INSTALLED_APPS`
 
 Now you must do one of the following:
 
