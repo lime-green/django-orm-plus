@@ -1,6 +1,6 @@
 import pytest
 from django.db.models import Sum, Prefetch
-from django_orm_plus._strict_mode import (
+from django_orm_plus.exceptions import (
     QueryModifiedAfterFetch,
     RelatedAttributeNeedsExplicitFetch,
     RelatedObjectNeedsExplicitFetch,
