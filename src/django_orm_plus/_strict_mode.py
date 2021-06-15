@@ -125,13 +125,15 @@ class StrictModeManager(models.manager.BaseManager.from_queryset(StrictModeQuery
         if item == "get_prefetch_queryset" and self._strict_mode.strict_mode:
 
             def get_prefetch_queryset(instances, queryset=None):
-                qs = queryset or self.get_queryset()
-                if hasattr(qs, "_strict_mode") and hasattr(
+                if queryset is None:
+                    queryset = self.get_queryset()
+
+                if hasattr(queryset, "_strict_mode") and hasattr(
                     instances[0], "_strict_mode"
                 ):
-                    instances[0]._strict_mode.clone_to(qs._strict_mode)
-                    qs._strict_mode.is_for_prefetch = True
-                    return ret(instances, qs)
+                    instances[0]._strict_mode.clone_to(queryset._strict_mode)
+                    queryset._strict_mode.is_for_prefetch = True
+                    return ret(instances, queryset)
                 return ret(instances, queryset)
 
             return get_prefetch_queryset
