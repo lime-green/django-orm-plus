@@ -6,7 +6,7 @@ from django.db.models import Model, QuerySet
 from django.db.models.manager import BaseManager, Manager
 from django.test import override_settings
 from django_orm_plus.apps import auto_add_mixin_to_model
-from django_orm_plus.mixins import ORMPlusQuerySet
+from django_orm_plus.mixins import ORMPlusModelMixin, ORMPlusQuerySet
 
 
 pytestmark = pytest.mark.django_db
@@ -93,6 +93,18 @@ class TestAutoPatch:
         assert isinstance(DummyModelWithCustomManager.objects, CustomManager)
         assert isinstance(DummyModelWithCustomManager.objects.all(), ORMPlusQuerySet)
         assert isinstance(DummyModelWithCustomManager.objects.all(), CustomQuerySet)
+
+    def test_does_nothing_if_mixin_already_added(self, DummyModel):
+        class MyModel(DummyModel, ORMPlusModelMixin):
+            class Meta:
+                app_label = "test"
+
+        state_before = ModelState.from_model(MyModel)
+        with auto_patch(True):
+            auto_add_mixin_to_model(MyModel)
+        state_after = ModelState.from_model(MyModel)
+
+        assert state_after == state_before
 
     def test_model_state_is_unchanged(self, DummyModelWithCustomManager, CustomManager):
         class MyModel(DummyModelWithCustomManager):
